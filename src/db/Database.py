@@ -46,6 +46,25 @@ class Database:
             if "does not exist" not in str(e).lower():
                 print(f"SQL varování: {e}")
 
+    def fetchall(self, sql, *params):
+        if not self.cursor:
+            return []
+        try:
+            self.cursor.execute(sql, params)
+            return self.cursor.fetchall()
+        except pyodbc.Error as e:
+            print(f"SQL chyba: {e}")
+            return []
+
+    def fetchone(self, sql, *params):
+        if not self.cursor:
+            return None
+        try:
+            self.cursor.execute(sql, params)
+            return self.cursor.fetchone()
+        except pyodbc.Error:
+            return None
+
     def commit(self):
         if self.connection:
             self.connection.commit()
