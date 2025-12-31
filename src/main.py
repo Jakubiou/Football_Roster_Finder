@@ -1,4 +1,5 @@
 from src.db.Database import Database
+from src.db.Schema import create_schema
 
 
 def main():
@@ -6,7 +7,8 @@ def main():
 
     try:
         db.connect()
-        print("\nAplikace úspěšně připojena k databázi")
+        create_schema(db)
+        print("\nDatabázová struktura úspěšně vytvořena")
     except Exception as e:
         print(f"\nChyba: {e}")
     finally:
