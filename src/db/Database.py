@@ -68,3 +68,11 @@ class Database:
     def commit(self):
         if self.connection:
             self.connection.commit()
+
+    def begin(self):
+        if self.connection:
+            self.connection.autocommit = False
+
+    def rollback(self):
+        if self.connection:
+            self.connection.rollback()
