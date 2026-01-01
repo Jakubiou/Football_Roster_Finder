@@ -30,3 +30,22 @@ class TeamDAO:
         rows = self.db.fetchall(sql)
 
         return [Team(r[0], r[1], r[2] or "", r[3], r[4] or 0) for r in rows]
+
+    def get_roster(self, team_name):
+        sql = """
+        SELECT Player, Position, ContractType, Minutes, Height
+        FROM V_TeamRoster
+        WHERE Team = ? AND Active = 1 AND Minutes > 0
+        """
+        rows = self.db.fetchall(sql, team_name)
+
+        return [
+            {
+                "player": r[0],
+                "position": r[1],
+                "contract": r[2] if r[2] else "N/A",
+                "minutes": r[3],
+                "height": r[4]
+            }
+            for r in rows
+        ]
