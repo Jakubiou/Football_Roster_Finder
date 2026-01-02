@@ -234,6 +234,7 @@ def create_schema(db):
         JOIN Player p ON pt.player_id = p.id
         JOIN Team t ON pt.team_id = t.id
         JOIN Position pos ON pt.position_id = pos.id
+        WHERE p.active = 1 AND pt.minutes_played > 0
         """,
 
         """
