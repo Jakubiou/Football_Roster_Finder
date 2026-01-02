@@ -1,12 +1,16 @@
+from src.dao.PositionDAO import PositionDAO
+from src.models.Position import Position
+
+
 def ensure_schema(db):
     print("Kontrola databázové struktury")
 
     required_structure = {
         'Team': ['id', 'name', 'league', 'founded_year', 'budget'],
         'Player': ['id', 'name', 'birth_date', 'height', 'active'],
-        'Position': ['id', 'code'],
+        'Position': ['id', 'name'],
         'Contract': ['id', 'salary', 'type', 'valid_from', 'valid_to'],
-        'PlayerTeam': ['id', 'player_id', 'team_id', 'position_id', 'from_date', 'to_date', 'minutes_played'],
+        'PlayerTeam': ['id', 'player_id', 'team_id', 'position_id', 'minutes_played'],
         'PlayerContract': ['player_id', 'contract_id']
     }
 
@@ -96,7 +100,7 @@ def create_schema(db):
     except:
         pass
 
-    print("Odstraňuji VIEW a tabulky...")
+    print("Odstraňuji VIEW a tabulky")
 
     drop_statements = [
         "DROP VIEW IF EXISTS V_TeamStatistics",
@@ -145,7 +149,7 @@ def create_schema(db):
         """
         CREATE TABLE Position (
             id INT IDENTITY PRIMARY KEY,
-            code VARCHAR(10) NOT NULL CHECK (code IN ('GK', 'DEF', 'MID', 'ATT'))
+            name VARCHAR(10) NOT NULL CHECK (name IN ('GK', 'DEF', 'MID', 'ATT'))
         )
         """,
 
@@ -165,8 +169,6 @@ def create_schema(db):
             player_id INT NOT NULL,
             team_id INT NOT NULL,
             position_id INT NOT NULL,
-            from_date DATE NOT NULL,
-            to_date DATE NULL,
             minutes_played INT DEFAULT 0,
             FOREIGN KEY (player_id) REFERENCES Player(id),
             FOREIGN KEY (team_id) REFERENCES Team(id),
@@ -198,13 +200,13 @@ def create_schema(db):
         SELECT
             t.name AS team,
             p.name AS player,
-            pos.code AS position,
+            pos.name AS position,
             pt.minutes_played
         FROM PlayerTeam pt
         JOIN Player p ON pt.player_id = p.id
         JOIN Team t ON pt.team_id = t.id
         JOIN Position pos ON pt.position_id = pos.id
-        WHERE pt.to_date IS NULL
+
         """,
 
         """
@@ -223,38 +225,41 @@ def create_schema(db):
         """
         CREATE VIEW V_TeamRoster AS
         SELECT
-            t.name AS Team,
-            p.name AS Player,
-            pos.code AS Position,
-            c.type AS ContractType,
-            pt.minutes_played AS Minutes,
-            p.height AS Height,
-            p.active AS Active
+            t.name AS team,
+            p.name AS player,
+            pos.name AS position,
+            pt.minutes_played AS minutes,
+            p.height
         FROM PlayerTeam pt
-        JOIN Team t ON t.id = pt.team_id
-        JOIN Player p ON p.id = pt.player_id
-        JOIN Position pos ON pos.id = pt.position_id
-        LEFT JOIN PlayerContract pc ON pc.player_id = p.id
-        LEFT JOIN Contract c ON c.id = pc.contract_id
-        WHERE pt.to_date IS NULL
+        JOIN Player p ON pt.player_id = p.id
+        JOIN Team t ON pt.team_id = t.id
+        JOIN Position pos ON pt.position_id = pos.id
         """,
 
         """
-        CREATE VIEW V_TeamStatistics AS
+        CREATE OR ALTER VIEW V_TeamStatistics AS
         SELECT
-            t.name AS Team,
-            COUNT(DISTINCT p.id) AS PlayerCount,
-            AVG(p.height) AS AvgHeight,
-            SUM(c.salary) AS TotalSalary,
-            SUM(pt.minutes_played) AS TotalMinutes
+            t.name AS team,
+            COUNT(pt.player_id) AS players,
+            ISNULL(AVG(p.height), 0) AS avg_height,
+            ISNULL(SUM(c.salary), 0) AS total_salary,
+            ISNULL(SUM(pt.minutes_played), 0) AS total_minutes
         FROM Team t
-        LEFT JOIN PlayerTeam pt ON t.id = pt.team_id AND pt.to_date IS NULL
-        LEFT JOIN Player p ON p.id = pt.player_id
-        LEFT JOIN PlayerContract pc ON pc.player_id = p.id
-        LEFT JOIN Contract c ON c.id = pc.contract_id
+        LEFT JOIN PlayerTeam pt ON t.id = pt.team_id
+        LEFT JOIN Player p ON pt.player_id = p.id
+        LEFT JOIN PlayerContract pc ON p.id = pc.player_id
+        LEFT JOIN Contract c ON pc.contract_id = c.id
         GROUP BY t.name
+
         """
     ]
+
+    pos_dao = PositionDAO(db)
+
+    for code in ["GK", "DEF", "MID", "ATT"]:
+        pos_dao.create(Position(name=code))
+
+    print("Výchozí pozice vytvořeny")
 
     for sql in create_views:
         db.execute(sql)
