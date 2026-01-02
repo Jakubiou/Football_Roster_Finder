@@ -11,14 +11,24 @@ class TeamDAO:
         INSERT INTO Team (name, league, founded_year, budget)
         VALUES (?, ?, ?, ?)
         """
-        self.db.execute(sql, team.name, team.league, team.founded_year, team.budget)
+        self.db.execute(
+            sql,
+            team.name,
+            team.league,
+            team.founded_year,
+            team.budget
+        )
         self.db.commit()
 
-        result = self.db.fetchone("SELECT @@IDENTITY")
-        return int(result[0]) if result else None
+        result = self.db.fetchone("SELECT SCOPE_IDENTITY()")
+        return int(result[0]) if result and result[0] is not None else None
 
     def get_by_name(self, name):
-        sql = "SELECT id, name, league, founded_year, budget FROM Team WHERE name = ?"
+        sql = """
+        SELECT id, name, league, founded_year, budget
+        FROM Team
+        WHERE name = ?
+        """
         row = self.db.fetchone(sql, name)
 
         if row:
@@ -26,16 +36,29 @@ class TeamDAO:
         return None
 
     def get_all(self):
-        sql = "SELECT id, name, league, founded_year, budget FROM Team"
+        sql = """
+        SELECT id, name, league, founded_year, budget
+        FROM Team
+        """
         rows = self.db.fetchall(sql)
 
-        return [Team(r[0], r[1], r[2] or "", r[3], r[4] or 0) for r in rows]
+        return [
+            Team(
+                r[0],
+                r[1],
+                r[2] or "",
+                r[3],
+                r[4] or 0
+            )
+            for r in rows
+        ]
 
     def get_roster(self, team_name):
         sql = """
-        SELECT Player, Position, ContractType, Minutes, Height
+        SELECT player, position, minutes, height
         FROM V_TeamRoster
-        WHERE Team = ? AND Active = 1 AND Minutes > 0
+        WHERE team = ?
+        ORDER BY position, player
         """
         rows = self.db.fetchall(sql, team_name)
 
@@ -43,9 +66,17 @@ class TeamDAO:
             {
                 "player": r[0],
                 "position": r[1],
-                "contract": r[2] if r[2] else "N/A",
-                "minutes": r[3],
-                "height": r[4]
+                "minutes": r[2],
+                "height": r[3]
             }
             for r in rows
         ]
+
+    def get_players_in_team(self, team_id):
+        sql = """
+        SELECT p.id, p.name
+        FROM PlayerTeam pt
+        JOIN Player p ON pt.player_id = p.id
+        WHERE pt.team_id = ?
+        """
+        return self.db.fetchall(sql, team_id)
