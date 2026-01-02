@@ -20,8 +20,6 @@ def import_players_from_csv(db, filename):
             f.seek(0)
             reader = csv.DictReader(f, delimiter=delimiter)
 
-            print("DEBUG HEADERS:", reader.fieldnames)
-
             for row in reader:
                 player = Player(
                     name=row['name'].strip(),
