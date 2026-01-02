@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Sparta Praha",
+    "league": "1. LIGA",
+    "founded_year": 1893,
+    "budget": 15000000
+  },
+  {
+    "name": "Slavia Praha",
+    "league": "1. LIGA",
+    "founded_year": 1892,
+    "budget": 14500000
+  },
+  {
+    "name": "Baník Ostrava",
+    "league": "2. LIGA",
+    "founded_year": 1922,
+    "budget": 6000000
+  }
+]
