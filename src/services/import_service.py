@@ -51,9 +51,7 @@ def import_teams_from_json(db, filename):
             for item in data:
                 team = Team(
                     name=item['name'],
-                    league=item['league'],
-                    founded_year=item.get('founded_year'),
-                    budget=item.get('budget', 0.0)
+                    league=item['league']
                 )
                 team_dao.create(team)
                 imported += 1
