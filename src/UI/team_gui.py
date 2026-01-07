@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import simpledialog, messagebox
+from tkinter import messagebox
 from src.dao.TeamDAO import TeamDAO
 from src.models.Team import Team
+
 
 class TeamGUI:
     def __init__(self, root, db):
@@ -9,27 +10,65 @@ class TeamGUI:
         self.db = db
 
     def add_team(self):
-        name = simpledialog.askstring("Tým", "Název týmu:")
-        league = simpledialog.askstring("Tým", "Liga:")
-        if not name:
-            return
-        TeamDAO(self.db).create(Team(name=name, league=league))
-        messagebox.showinfo("OK", "Tým přidán")
+        win = tk.Toplevel(self.root)
+        win.title("Přidat tým")
+        win.geometry("300x200")
+
+        tk.Label(win, text="Název týmu").pack()
+        name_var = tk.StringVar()
+        tk.Entry(win, textvariable=name_var).pack()
+
+        tk.Label(win, text="Liga (zadej číslo 1 nebo 2)").pack()
+        league_var = tk.StringVar()
+        tk.Entry(win, textvariable=league_var).pack()
+
+        def submit():
+            try:
+                name = name_var.get().strip()
+
+                if len(name) < 2:
+                    raise ValueError("Název musí mít alespoň 2 znaky")
+
+                league_input = league_var.get().strip()
+                if league_input not in ['1', '2']:
+                    raise ValueError("Liga musí být číslo 1 nebo 2")
+
+                league = f"{league_input}. LIGA"
+
+                TeamDAO(self.db).create(Team(name=name, league=league))
+                messagebox.showinfo("OK", f"Tým přidán do {league}")
+                win.destroy()
+            except ValueError as e:
+                messagebox.showerror("Chyba", str(e))
+            except Exception as e:
+                messagebox.showerror("Chyba", str(e))
+
+        tk.Button(win, text="Přidat", command=submit).pack(pady=15)
 
     def show_roster(self, output):
-        team_name = simpledialog.askstring("Tým", "Název týmu:")
-        if not team_name:
+        teams = TeamDAO(self.db).get_all()
+        if not teams:
+            messagebox.showwarning("Upozornění", "Žádné týmy v databázi")
             return
 
-        output.delete(1.0, tk.END)
-        roster = TeamDAO(self.db).get_roster(team_name)
+        win = tk.Toplevel(self.root)
+        win.title("Zobrazit soupisku")
+        win.geometry("300x150")
 
-        if not roster:
-            output.insert(tk.END, "Tým nemá hráče\n")
-            return
+        tk.Label(win, text="Vyberte tým").pack()
+        team_var = tk.StringVar(value=teams[0].name)
+        tk.OptionMenu(win, team_var, *[t.name for t in teams]).pack()
 
-        for r in roster:
-            output.insert(
-                tk.END,
-                f"{r['player']} | {r['position']} | {r['minutes']} min\n"
-            )
+        def show():
+            roster = TeamDAO(self.db).get_roster(team_var.get())
+            output.delete(1.0, tk.END)
+            output.insert(tk.END, f"Soupiska: {team_var.get()}\n\n")
+
+            if not roster:
+                output.insert(tk.END, "Žádní hráči\n")
+            else:
+                for r in roster:
+                    output.insert(tk.END, f"{r['player']} | {r['position']} | {r['minutes']} min\n")
+            win.destroy()
+
+        tk.Button(win, text="Zobrazit", command=show).pack(pady=10)
