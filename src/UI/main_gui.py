@@ -16,7 +16,7 @@ class App:
     def __init__(self, root):
         self.root = root
         self.root.title("Football Roster")
-        self.root.geometry("900x750")
+        self.root.geometry("900x950")
 
         self.db = Database()
         self.db.connect()
