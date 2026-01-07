@@ -8,15 +8,13 @@ class TeamDAO:
 
     def create(self, team):
         sql = """
-        INSERT INTO Team (name, league, founded_year, budget)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO Team (name, league)
+        VALUES (?, ?)
         """
         self.db.execute(
             sql,
             team.name,
-            team.league,
-            team.founded_year,
-            team.budget
+            team.league
         )
         self.db.commit()
 
@@ -32,12 +30,12 @@ class TeamDAO:
         row = self.db.fetchone(sql, name)
 
         if row:
-            return Team(row[0], row[1], row[2], row[3], row[4])
+            return Team(row[0], row[1], row[2])
         return None
 
     def get_all(self):
         sql = """
-        SELECT id, name, league, founded_year, budget
+        SELECT id, name, league
         FROM Team
         """
         rows = self.db.fetchall(sql)
@@ -47,8 +45,6 @@ class TeamDAO:
                 r[0],
                 r[1],
                 r[2] or "",
-                r[3],
-                r[4] or 0
             )
             for r in rows
         ]
