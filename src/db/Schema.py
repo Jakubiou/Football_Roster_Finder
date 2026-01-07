@@ -6,7 +6,7 @@ def ensure_schema(db):
     print("Kontrola databázové struktury")
 
     required_structure = {
-        'Team': ['id', 'name', 'league', 'founded_year', 'budget'],
+        'Team': ['id', 'name', 'league'],
         'Player': ['id', 'name', 'birth_date', 'height', 'active'],
         'Position': ['id', 'name'],
         'Contract': ['id', 'salary', 'type', 'valid_from', 'valid_to'],
@@ -130,9 +130,7 @@ def create_schema(db):
         CREATE TABLE Team (
             id INT IDENTITY PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
-            league VARCHAR(20) NOT NULL CHECK (league IN ('1. LIGA', '2. LIGA')),
-            founded_year INT,
-            budget FLOAT
+            league VARCHAR(20) NOT NULL CHECK (league IN ('1. LIGA', '2. LIGA'))
         )
         """,
 
