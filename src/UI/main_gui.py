@@ -32,14 +32,17 @@ class App:
         frame.pack(pady=10)
 
         list_gui = ListGUI(self.db)
-
+        player_gui = PlayerGUI(self.root, self.db)
+        team_gui = TeamGUI(self.root, self.db)
         pt = PlayerTeamGUI(self.root, self.db)
 
         buttons = [
             ("Zobrazit hráče", lambda: list_gui.show_players(self.output)),
             ("Zobrazit týmy", lambda: list_gui.show_teams(self.output)),
-            ("Přidat hráče", lambda: PlayerGUI(self.root, self.db).add_player()),
-            ("Přidat tým", lambda: TeamGUI(self.root, self.db).add_team()),
+            ("Přidat hráče", player_gui.add_player),
+            ("Upravit hráče", player_gui.update_player),
+            ("Odebrat hráče", player_gui.delete_player),
+            ("Přidat tým", team_gui.add_team),
             ("Zobrazit soupisku", lambda: TeamGUI(self.root, self.db).show_roster(self.output)),
             ("Přidat hráče do týmu", pt.add_player),
             ("Odebrat hráče z týmu", pt.remove_player),
