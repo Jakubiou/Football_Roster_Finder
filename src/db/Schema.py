@@ -1,6 +1,7 @@
 from src.dao.PositionDAO import PositionDAO
 from src.models.Position import Position
-
+from src.lib.drop_foreign_keys import drop_foreign_keys
+from src.lib.schema_checker import check_tables_and_views
 
 def ensure_schema(db):
     print("Kontrola databázové struktury")
@@ -17,55 +18,7 @@ def ensure_schema(db):
     required_views = ['V_TeamRoster', 'V_TeamStatistics']
 
     try:
-        needs_recreation = False
-
-        for table_name in required_structure.keys():
-            table_exists = db.fetchone("""
-                SELECT TABLE_NAME 
-                FROM INFORMATION_SCHEMA.TABLES 
-                WHERE TABLE_NAME = ?
-            """, table_name)
-
-            if not table_exists:
-                print(f"Tabulka '{table_name}' neexistuje")
-                needs_recreation = True
-                break
-
-            expected_columns = set(required_structure[table_name])
-            actual_columns_rows = db.fetchall("""
-                SELECT COLUMN_NAME 
-                FROM INFORMATION_SCHEMA.COLUMNS 
-                WHERE TABLE_NAME = ?
-            """, table_name)
-
-            actual_columns = set(row[0].lower() for row in actual_columns_rows)
-            expected_columns_lower = set(col.lower() for col in expected_columns)
-
-            if actual_columns != expected_columns_lower:
-                missing = expected_columns_lower - actual_columns
-                extra = actual_columns - expected_columns_lower
-
-                print(f"Tabulka '{table_name}' má špatnou strukturu:")
-                if missing:
-                    print(f"    Chybí sloupce: {', '.join(missing)}")
-                if extra:
-                    print(f"    Navíc sloupce: {', '.join(extra)}")
-
-                needs_recreation = True
-                break
-
-        if not needs_recreation:
-            for view_name in required_views:
-                view_exists = db.fetchone("""
-                    SELECT TABLE_NAME 
-                    FROM INFORMATION_SCHEMA.VIEWS 
-                    WHERE TABLE_NAME = ?
-                """, view_name)
-
-                if not view_exists:
-                    print(f"VIEW '{view_name}' neexistuje")
-                    needs_recreation = True
-                    break
+        needs_recreation = check_tables_and_views(db, required_structure, required_views)
 
         if needs_recreation:
             print("Databázová struktura je neplatná - provádím reinicializaci...")
@@ -79,26 +32,10 @@ def ensure_schema(db):
         create_schema(db)
 
 
+
 def create_schema(db):
 
-    print("Odstraňuji FOREIGN KEY constrainty")
-
-    drop_fks = """
-    DECLARE @sql NVARCHAR(MAX) = N'';
-
-    SELECT @sql += 'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(parent_object_id))
-        + '.' + QUOTENAME(OBJECT_NAME(parent_object_id))
-        + ' DROP CONSTRAINT ' + QUOTENAME(name) + ';'
-    FROM sys.foreign_keys;
-
-    EXEC sp_executesql @sql;
-    """
-
-    try:
-        db.execute(drop_fks)
-        db.commit()
-    except:
-        pass
+    drop_foreign_keys(db)
 
     print("Odstraňuji VIEW a tabulky")
 
