@@ -97,60 +97,6 @@ class PlayerTeamGUI:
 
         tk.Button(win, text="Odebrat", command=submit).pack(pady=10)
 
-    def change_position(self):
-        teams = TeamDAO(self.db).get_all()
-        positions = PositionDAO(self.db).get_all()
-
-        if not teams or not positions:
-            messagebox.showerror("Chyba", "Žádné týmy nebo pozice")
-            return
-
-        win = tk.Toplevel(self.root)
-        win.title("Změna pozice")
-
-        team_var = tk.StringVar(value=teams[0].name)
-        player_var = tk.StringVar()
-        pos_var = tk.StringVar(value=positions[0].name)
-
-        tk.Label(win, text="Tým").pack()
-        tk.OptionMenu(win, team_var, *[t.name for t in teams]).pack()
-
-        tk.Label(win, text="Hráč").pack()
-        player_menu = tk.OptionMenu(win, player_var, "")
-        player_menu.pack()
-
-        tk.Label(win, text="Nová pozice").pack()
-        tk.OptionMenu(win, pos_var, *[p.name for p in positions]).pack()
-
-        def load_players(*_):
-            team = next(t for t in teams if t.name == team_var.get())
-            players = TeamDAO(self.db).get_players_in_team(team.id)
-            menu = player_menu["menu"]
-            menu.delete(0, "end")
-            if players:
-                player_var.set(players[0][1])
-                for pid, pname in players:
-                    menu.add_command(label=pname, command=lambda v=pname: player_var.set(v))
-
-        team_var.trace("w", load_players)
-        load_players()
-
-        def submit():
-            try:
-                if not player_var.get():
-                    raise ValueError("Vyberte hráče")
-                team = next(t for t in teams if t.name == team_var.get())
-                players = TeamDAO(self.db).get_players_in_team(team.id)
-                player_id = next(pid for pid, pname in players if pname == player_var.get())
-                position = next(p for p in positions if p.name == pos_var.get())
-                change_position(self.db, player_id, position.id)
-                messagebox.showinfo("OK", "Pozice změněna")
-                win.destroy()
-            except Exception as e:
-                messagebox.showerror("Chyba", str(e))
-
-        tk.Button(win, text="Uložit", command=submit).pack(pady=10)
-
     def update_minutes(self):
         teams = TeamDAO(self.db).get_all()
         if not teams:
