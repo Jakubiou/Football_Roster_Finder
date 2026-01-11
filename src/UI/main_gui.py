@@ -46,7 +46,6 @@ class App:
             ("Zobrazit soupisku", lambda: TeamGUI(self.root, self.db).show_roster(self.output)),
             ("Přidat hráče do týmu", pt.add_player),
             ("Odebrat hráče z týmu", pt.remove_player),
-            ("Změnit pozici hráče", pt.change_position),
             ("Aktualizovat minuty", pt.update_minutes),
             ("Přestup hráče", lambda: TransferGUI(self.root, self.db).open()),
             ("Smlouvy", lambda: ContractGUI(self.root, self.db).open()),
