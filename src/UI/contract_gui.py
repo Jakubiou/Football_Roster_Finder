@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
+from src.dao.ContractDAO import ContractDAO
 from src.dao.PlayerDAO import PlayerDAO
 from src.services.player_team_service import create_contract, assign_contract_to_player
 
@@ -11,6 +12,41 @@ class ContractGUI:
         self.db = db
 
     def open(self):
+        win = tk.Toplevel(self.root)
+        win.title("Správa smluv")
+        win.geometry("300x250")
+
+        tk.Label(win, text="Správa smluv", font=("Arial", 12, "bold")).pack(pady=10)
+
+        tk.Button(win, text="Zobrazit všechny smlouvy", command=self.show_contracts, width=25).pack(pady=5)
+        tk.Button(win, text="Vytvořit novou smlouvu", command=self.create_contract, width=25).pack(pady=5)
+        tk.Button(win, text="Upravit smlouvu", command=self.update_contract, width=25).pack(pady=5)
+        tk.Button(win, text="Smazat smlouvu", command=self.delete_contract, width=25).pack(pady=5)
+
+    def show_contracts(self):
+        win = tk.Toplevel(self.root)
+        win.title("Přehled smluv")
+        win.geometry("600x300")
+
+        tk.Label(win, text="Všechny smlouvy").pack()
+
+        text = tk.Text(win, height=15, width=70)
+        text.pack(padx=10, pady=10)
+
+        try:
+            rows = self.db.fetchall("SELECT player, type, salary FROM V_PlayerContracts")
+
+            if not rows:
+                text.insert(tk.END, "Žádné smlouvy\n")
+            else:
+                for r in rows:
+                    text.insert(tk.END, f"{r[0]} | {r[1]} | {r[2]} Kč\n")
+        except:
+            text.insert(tk.END, "Chyba načítání\n")
+
+        text.config(state=tk.DISABLED)
+
+    def create_contract(self):
         players = PlayerDAO(self.db).get_all()
         if not players:
             messagebox.showerror("Chyba", "Nejdříve přidejte hráče")
@@ -64,3 +100,110 @@ class ContractGUI:
                 messagebox.showerror("Chyba", f"Neplatný formát dat: {str(e)}")
 
         tk.Button(win, text="Uložit", command=submit).pack(pady=15)
+
+    def update_contract(self):
+        contracts = ContractDAO(self.db).get_all()
+        if not contracts:
+            messagebox.showwarning("Upozornění", "Žádné smlouvy v databázi")
+            return
+
+        win = tk.Toplevel(self.root)
+        win.title("Upravit smlouvu")
+        win.geometry("350x400")
+
+        tk.Label(win, text="Vyberte smlouvu").pack()
+        contract_var = tk.StringVar()
+        contract_options = [f"ID:{c.id} - {c.type} - {c.salary} Kč" for c in contracts]
+        contract_var.set(contract_options[0])
+        tk.OptionMenu(win, contract_var, *contract_options).pack()
+
+        tk.Label(win, text="Nový plat").pack()
+        salary_var = tk.StringVar()
+        tk.Entry(win, textvariable=salary_var).pack()
+
+        tk.Label(win, text="Nový typ").pack()
+        type_var = tk.StringVar(value="PROFESSIONAL")
+        tk.OptionMenu(win, type_var, "PROFESSIONAL", "AMATEUR", "LOAN").pack()
+
+        tk.Label(win, text="Od (YYYY-MM-DD)").pack()
+        from_var = tk.StringVar()
+        tk.Entry(win, textvariable=from_var).pack()
+
+        tk.Label(win, text="Do (YYYY-MM-DD)").pack()
+        to_var = tk.StringVar()
+        tk.Entry(win, textvariable=to_var).pack()
+
+        def load_contract_data(*args):
+            selected_idx = contract_options.index(contract_var.get())
+            contract = contracts[selected_idx]
+            salary_var.set(str(contract.salary))
+            type_var.set(contract.type)
+            from_var.set(contract.valid_from.strftime("%Y-%m-%d"))
+            to_var.set(contract.valid_to.strftime("%Y-%m-%d"))
+
+        contract_var.trace("w", load_contract_data)
+        load_contract_data()
+
+        def submit():
+            try:
+                selected_idx = contract_options.index(contract_var.get())
+                contract = contracts[selected_idx]
+
+                salary = float(salary_var.get().replace(",", "."))
+                if salary < 0:
+                    raise ValueError("Plat musí být kladný")
+
+                date_from = datetime.strptime(from_var.get().strip(), "%Y-%m-%d").date()
+                date_to = datetime.strptime(to_var.get().strip(), "%Y-%m-%d").date()
+
+                if date_to <= date_from:
+                    raise ValueError("Datum 'do' musí být po datu 'od'")
+
+                contract.salary = salary
+                contract.type = type_var.get()
+                contract.valid_from = date_from
+                contract.valid_to = date_to
+
+                ContractDAO(self.db).update(contract)
+                messagebox.showinfo("OK", "Smlouva upravena")
+                win.destroy()
+            except ValueError as e:
+                messagebox.showerror("Chyba", str(e))
+            except Exception as e:
+                messagebox.showerror("Chyba", str(e))
+
+        tk.Button(win, text="Uložit změny", command=submit).pack(pady=15)
+
+    def delete_contract(self):
+        contracts = ContractDAO(self.db).get_all()
+        if not contracts:
+            messagebox.showwarning("Upozornění", "Žádné smlouvy v databázi")
+            return
+
+        win = tk.Toplevel(self.root)
+        win.title("Smazat smlouvu")
+        win.geometry("350x200")
+
+        tk.Label(win, text="Vyberte smlouvu ke smazání").pack()
+        contract_var = tk.StringVar()
+        contract_options = [f"ID:{c.id} - {c.type} - {c.salary} Kč" for c in contracts]
+        contract_var.set(contract_options[0])
+        tk.OptionMenu(win, contract_var, *contract_options).pack()
+
+        def submit():
+            try:
+                if messagebox.askyesno("Potvrzení",
+                                       f"Opravdu smazat smlouvu {contract_var.get()}?\n\nPozor: Smaže se i vazba v PlayerContract!"):
+                    selected_idx = contract_options.index(contract_var.get())
+                    contract = contracts[selected_idx]
+
+                    self.db.execute("DELETE FROM PlayerContract WHERE contract_id = ?", contract.id)
+                    self.db.commit()
+
+                    ContractDAO(self.db).delete(contract.id)
+                    messagebox.showinfo("OK", "Smlouva a vazby smazány")
+                    win.destroy()
+            except Exception as e:
+                messagebox.showerror("Chyba", str(e))
+
+        tk.Button(win, text="Smazat", command=submit, bg="#f44336", fg="white").pack(pady=15)
