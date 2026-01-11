@@ -51,7 +51,7 @@ Petr Svoboda,20.08.1998,1.78,1
 1. **Správa hráčů** - Přidání, zobrazení, import z CSV
 2. **Správa týmů** - Vytváření týmů, přiřazování hráčů
 3. **Přestupy** - Převod hráčů mezi týmy (s transakcí)
-4. **Smlouvy** - Vytváření a přiřazování smluv
+4. **Smlouvy** - Vytváření, úprava, mazání a přiřazování smluv
 5. **Statistiky** - Agregované reporty z více tabulek
 6. **Import** - CSV a JSON podpora
 
