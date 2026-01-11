@@ -7,11 +7,20 @@ from src.services.player_team_service import create_contract, assign_contract_to
 
 
 class ContractGUI:
+    '''
+    Handles the Graphical User Interface for contract management.
+    Allows users to view, create, update, and delete player contracts
+    through a series of Tkinter TopLevel windows.
+    '''
     def __init__(self, root, db):
         self.root = root
         self.db = db
 
     def open(self):
+        '''
+        Opens the graphical user interface.
+        :return: None
+        '''
         win = tk.Toplevel(self.root)
         win.title("Správa smluv")
         win.geometry("300x250")
@@ -24,6 +33,11 @@ class ContractGUI:
         tk.Button(win, text="Smazat smlouvu", command=self.delete_contract, width=25).pack(pady=5)
 
     def show_contracts(self):
+        '''
+        Displays a window with a formatted overview of all contracts
+        retrieved from the V_PlayerContracts database view.
+        :return: None
+        '''
         win = tk.Toplevel(self.root)
         win.title("Přehled smluv")
         win.geometry("600x300")
@@ -47,6 +61,11 @@ class ContractGUI:
         text.config(state=tk.DISABLED)
 
     def create_contract(self):
+        '''
+        Opens a form to create a new contract. Includes input validation
+        for salary amounts and date ranges.
+        :return: None
+        '''
         players = PlayerDAO(self.db).get_all()
         if not players:
             messagebox.showerror("Chyba", "Nejdříve přidejte hráče")
@@ -77,6 +96,11 @@ class ContractGUI:
         tk.Entry(win, textvariable=to_var).pack()
 
         def submit():
+            '''
+            Internal helper to validate inputs and call the service
+            layer to persist the contract and its assignment.
+            :return: None
+            '''
             try:
                 salary = float(salary_var.get().replace(",", "."))
                 if salary < 0:
@@ -102,6 +126,10 @@ class ContractGUI:
         tk.Button(win, text="Uložit", command=submit).pack(pady=15)
 
     def update_contract(self):
+        '''
+        Updates the contract table.
+        :return: None
+        '''
         contracts = ContractDAO(self.db).get_all()
         if not contracts:
             messagebox.showwarning("Upozornění", "Žádné smlouvy v databázi")
@@ -134,6 +162,11 @@ class ContractGUI:
         tk.Entry(win, textvariable=to_var).pack()
 
         def load_contract_data(*args):
+            '''
+            Pre-fills the form fields based on the selected contract.
+            :param args:
+            :return: None
+            '''
             selected_idx = contract_options.index(contract_var.get())
             contract = contracts[selected_idx]
             salary_var.set(str(contract.salary))
@@ -145,6 +178,10 @@ class ContractGUI:
         load_contract_data()
 
         def submit():
+            '''
+            Internal helper to validate inputs and call the service
+            :return: None
+            '''
             try:
                 selected_idx = contract_options.index(contract_var.get())
                 contract = contracts[selected_idx]
@@ -175,6 +212,11 @@ class ContractGUI:
         tk.Button(win, text="Uložit změny", command=submit).pack(pady=15)
 
     def delete_contract(self):
+        '''
+        Opens a window to delete a contract. Includes a confirmation
+        dialog and handles cascade deletion of links in PlayerContract.
+        :return: None
+        '''
         contracts = ContractDAO(self.db).get_all()
         if not contracts:
             messagebox.showwarning("Upozornění", "Žádné smlouvy v databázi")
@@ -191,6 +233,10 @@ class ContractGUI:
         tk.OptionMenu(win, contract_var, *contract_options).pack()
 
         def submit():
+            '''
+            Executes deletion after user confirmation.
+            :return: None
+            '''
             try:
                 if messagebox.askyesno("Potvrzení",
                                        f"Opravdu smazat smlouvu {contract_var.get()}?\n\nPozor: Smaže se i vazba v PlayerContract!"):

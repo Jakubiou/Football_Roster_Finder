@@ -13,7 +13,15 @@ from src.UI.list_gui import ListGUI
 
 
 class App:
+    '''
+    Main application class that initializes the database connection,
+    verifies the schema, and builds the primary user interface.
+    '''
     def __init__(self, root):
+        '''
+        Initializes the main application window and database connection.
+        :param root: The root Tkinter window.
+        '''
         self.root = root
         self.root.title("Football Roster")
         self.root.geometry("900x950")
@@ -28,6 +36,10 @@ class App:
         self.create_ui()
 
     def create_ui(self):
+        '''
+        Creates the main window and database connection.
+        :return: None
+        '''
         frame = tk.Frame(self.root)
         frame.pack(pady=10)
 

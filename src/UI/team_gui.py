@@ -5,11 +5,20 @@ from src.models.Team import Team
 
 
 class TeamGUI:
+    '''
+    Handles the Graphical User Interface for team management.
+    Provides functionality to add new teams and display current team rosters
+    based on activity and minutes played.
+    '''
     def __init__(self, root, db):
         self.root = root
         self.db = db
 
     def add_team(self):
+        '''
+        Adds a new team to the database.
+        :return: None
+        '''
         win = tk.Toplevel(self.root)
         win.title("Přidat tým")
         win.geometry("300x200")
@@ -46,6 +55,12 @@ class TeamGUI:
         tk.Button(win, text="Přidat", command=submit).pack(pady=15)
 
     def show_roster(self, output):
+        '''
+        Opens a team selector window. Upon selection, retrieves the roster
+        for the given team and displays it in the main output text widget.
+        :param output: The main Tkinter Text widget for data output.
+        :return: None
+        '''
         teams = TeamDAO(self.db).get_all()
         if not teams:
             messagebox.showwarning("Upozornění", "Žádné týmy v databázi")

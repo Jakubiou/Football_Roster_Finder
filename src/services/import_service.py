@@ -8,6 +8,12 @@ from src.dao.TeamDAO import TeamDAO
 
 
 def import_players_from_csv(db, filename):
+    '''
+    Reads player data from a CSV file and persists it to the database.
+    :param db: The database connection instance.
+    :param filename: Path to the source CSV file.
+    :return: None
+    '''
     player_dao = PlayerDAO(db)
     imported = 0
 
@@ -42,6 +48,12 @@ def import_players_from_csv(db, filename):
 
 
 def import_teams_from_json(db, filename):
+    '''
+    Reads team data from a JSON file and persists it to the database.
+    :param db: The database connection instance.
+    :param filename: Path to the source JSON file.
+    :return: None
+    '''
     team_dao = TeamDAO(db)
     imported = 0
 

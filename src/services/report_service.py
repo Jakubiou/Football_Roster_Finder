@@ -1,4 +1,9 @@
 def generate_team_statistics(db):
+    '''
+    generates team statistics table
+    :param db: The database connection instance.
+    :return: None
+    '''
     sql = """
     SELECT team, players, avg_height, total_salary, total_minutes
     FROM V_TeamStatistics

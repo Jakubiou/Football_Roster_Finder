@@ -6,11 +6,20 @@ from src.models.Player import Player
 
 
 class PlayerGUI:
+    '''
+    Handles the Graphical User Interface for player management.
+    Provides forms for adding, updating, and deleting players with
+    integrated data validation.
+    '''
     def __init__(self, root, db):
         self.root = root
         self.db = db
 
     def add_player(self):
+        '''
+        Adds a new player to the database.
+        :return: None
+        '''
         win = tk.Toplevel(self.root)
         win.title("Přidat hráče")
         win.geometry("300x250")
@@ -59,6 +68,10 @@ class PlayerGUI:
         tk.Button(win, text="Přidat", command=submit).pack(pady=15)
 
     def update_player(self):
+        '''
+        Updates the player data from the database.
+        :return: None
+        '''
         players = PlayerDAO(self.db).get_all()
         if not players:
             messagebox.showwarning("Upozornění", "Žádní hráči v databázi")
@@ -126,6 +139,11 @@ class PlayerGUI:
         tk.Button(win, text="Uložit změny", command=submit).pack(pady=15)
 
     def delete_player(self):
+        '''
+        Opens a window to delete a player. Requires user confirmation
+        via a standard Yes/No dialog before proceeding.
+        :return: None
+        '''
         players = PlayerDAO(self.db).get_all()
         if not players:
             messagebox.showwarning("Upozornění", "Žádní hráči v databázi")

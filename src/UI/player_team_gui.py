@@ -3,16 +3,24 @@ from tkinter import messagebox
 from src.dao.PlayerDAO import PlayerDAO
 from src.dao.TeamDAO import TeamDAO
 from src.dao.PositionDAO import PositionDAO
-from src.services.player_team_service import add_player_to_team, remove_player_from_team, update_minutes, \
-    change_position
+from src.services.player_team_service import add_player_to_team, remove_player_from_team, update_minutes
 
 
 class PlayerTeamGUI:
+    '''
+    Handles the Graphical User Interface for managing player-team assignments.
+    Provides functionality to add players to teams, remove them, and track
+    their performance (minutes played).
+    '''
     def __init__(self, root, db):
         self.root = root
         self.db = db
 
     def add_player(self):
+        '''
+        Adds a player to the team.
+        :return: None
+        '''
         players = PlayerDAO(self.db).get_all()
         teams = TeamDAO(self.db).get_all()
         positions = PositionDAO(self.db).get_all()
@@ -51,6 +59,10 @@ class PlayerTeamGUI:
         tk.Button(win, text="Přidat", command=submit).pack(pady=10)
 
     def remove_player(self):
+        '''
+        Removes a player from the team.
+        :return: None
+        '''
         teams = TeamDAO(self.db).get_all()
         if not teams:
             messagebox.showerror("Chyba", "Žádné týmy")
@@ -98,6 +110,10 @@ class PlayerTeamGUI:
         tk.Button(win, text="Odebrat", command=submit).pack(pady=10)
 
     def update_minutes(self):
+        '''
+        Updates the minutes played for the team.
+        :return: None
+        '''
         teams = TeamDAO(self.db).get_all()
         if not teams:
             messagebox.showerror("Chyba", "Žádné týmy")

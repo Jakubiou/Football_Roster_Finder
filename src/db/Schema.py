@@ -4,6 +4,13 @@ from src.lib.drop_foreign_keys import drop_foreign_keys
 from src.lib.schema_checker import check_tables_and_views
 
 def ensure_schema(db):
+    '''
+    Verifies the database structure against a predefined requirement set.
+    If the schema is missing, incomplete, or invalid, it triggers a full recreation.
+    :param db: The database connection instance.
+    :return: None
+    '''
+
     print("Kontrola databázové struktury")
 
     required_structure = {
@@ -34,6 +41,12 @@ def ensure_schema(db):
 
 
 def create_schema(db):
+    '''
+    Performs a complete database reset. Drops existing views and tables,
+    recreates the table structure, defines views, and seeds initial data.
+    :param db: The database connection instance.
+    :return: None
+    '''
 
     drop_foreign_keys(db)
 

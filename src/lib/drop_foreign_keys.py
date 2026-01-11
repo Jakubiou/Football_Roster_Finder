@@ -1,5 +1,9 @@
 def drop_foreign_keys(db):
-
+    '''
+    Drop foreign keys from a Position table.
+    :param db: Database connection.
+    :return: None
+    '''
     print("Odstraňuji FOREIGN KEY constrainty")
 
     drop_fks = """

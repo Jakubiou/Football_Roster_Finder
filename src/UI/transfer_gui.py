@@ -7,6 +7,12 @@ from src.services.player_team_service import create_contract
 from src.services.transfer_service import transfer_player
 
 class TransferGUI:
+    '''
+    Manages the Graphical User Interface for player transfers.
+    This class orchestrates a complex workflow: identifying a player's current team,
+    selecting a target team, defining a new field position, and creating a new
+    contract—all within a single atomic operation.
+    '''
     def __init__(self, root, db):
         self.root = root
         self.db = db
@@ -57,6 +63,10 @@ class TransferGUI:
         tk.Entry(win, textvariable=from_team_var, state="readonly").pack()
 
         def update_from_team(*_):
+            '''
+            Reactive callback to update the read-only 'current team' field.
+            :return: None
+            '''
             _, tid = player_map[player_var.get()]
             from_team_var.set(team_by_id[tid].name)
 

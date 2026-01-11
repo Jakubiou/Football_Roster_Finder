@@ -5,6 +5,11 @@ from tkinter import messagebox
 
 
 def get_base_path():
+    '''
+    Determines the base directory of the application.
+    Handles both standard script execution and frozen executables (e.g., PyInstaller).
+    :return: The absolute path to the directory containing the application.
+    '''
     if getattr(sys, 'frozen', False):
         return os.path.dirname(sys.executable)
     else:
