@@ -64,6 +64,14 @@ Petr Svoboda,20.08.1998,1.78,1
 ]
 ```
 
+### SQL:
+- Ve složce sql máte připravené test_data.sql který můžete spustit na serveru kam se připojujete tím se vyplní všechny tabulky nějakými daty
+- Musíte přepnout na naší databázi
+  ```sql
+   USE DATABASE football;
+   ```
+- Nyní stačit vložit script z test_data.sql a spustit ho a tabulky se naplni
+
 ## Hlavní funkce
 
 1. **Správa hráčů** - Přidání, zobrazení, import z CSV
