@@ -24,10 +24,28 @@ Aplikace pro správu fotbalových týmů a hráčů s databázovým úložiště
 ```
 
 **Upravte:**
-- `SERVER` - adresa SQL serveru
-- `DATABASE` - název databáze
-- `UID` - uživatelské jméno
-- `PWD` - heslo
+- `SERVER` - adresa SQL serveru ("PC000" nebo "193.85.203.188")
+- `DATABASE` - název databáze ("jméno databáze kterou musíte vytvořit v Microsoft SQL Server Management (jak jí vytvořit najdete pod konfigurací v README)" nebo "pokud se připojujete na váš školní server tak to bude vaše uživatelské jméno např. novak")
+- `UID` - uživatelské jméno ("sa" nebo "stejný název jako u DATABASE pokud se připojujete na školní server")
+- `PWD` - heslo ("student" nebo "vaše heslo na školní server")
+
+## Vytvoření databáze
+
+Před prvním spuštěním aplikace je nutné vytvořit databázi v Microsoft SQL Serveru pokud se nepřihlašujete na váš vlastní server nebo na váš školní server.
+
+### Postup:
+1. Otevřete **Microsoft SQL Server Management Studio (SSMS)**.
+2. Připojte se k serveru:
+   - Server Name: `localhost` nebo `PC000 (místo 000 dejte číslo vašeho PC)`
+   - Authentication: SQL Server Authentication
+   - Login: `sa`
+   - Password: `student`
+3. Otevřete **New Query**.
+4. Spusťte následující SQL příkaz:
+   ```sql
+   CREATE DATABASE football;
+   ```
+5. Nyní v config.json dejte do DATABASE nazev vytvořené databáze pokud jste jen zkopírovali a spustili přikaz tak by to mělo být football
 
 ## Import testovacích dat
 
