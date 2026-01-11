@@ -65,7 +65,7 @@ class TeamGUI:
             output.insert(tk.END, f"Soupiska: {team_var.get()}\n\n")
 
             if not roster:
-                output.insert(tk.END, "Žádní hráči\n")
+                output.insert(tk.END, "Žádní hráči kteří by měli odehrané nějaké minuty nebo bz bzli aktivní\n")
             else:
                 for r in roster:
                     output.insert(tk.END, f"{r['player']} | {r['position']} | {r['minutes']} min\n")
