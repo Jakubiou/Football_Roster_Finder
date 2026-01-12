@@ -17,13 +17,17 @@ def get_base_path():
 
 
 if __name__ == "__main__":
+    app_instance = None
     try:
         base_path = get_base_path()
         os.chdir(base_path)
 
         root = tk.Tk()
-        App(root)
+        app_instance = App(root)
         root.mainloop()
     except Exception as e:
         messagebox.showerror("Chyba", f"Aplikace selhala: {str(e)}")
-        sys.exit(1)
+    finally:
+        if app_instance and hasattr(app_instance, 'db'):
+            app_instance.db.disconnect()
+        sys.exit(0)

@@ -30,10 +30,25 @@ class App:
         self.db.connect()
         ensure_schema(self.db)
 
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
         self.output = tk.Text(self.root, height=22)
         self.output.pack(fill=tk.BOTH, padx=10, pady=10)
 
         self.create_ui()
+
+    def on_closing(self):
+        '''
+        method that closes the application.
+        :return: None
+        '''
+        print("Ukončování aplikace a odpojování DB...")
+        try:
+            self.db.disconnect()
+        except Exception as e:
+            print(f"Chyba při odpojování: {e}")
+        finally:
+            self.root.destroy()
 
     def create_ui(self):
         '''

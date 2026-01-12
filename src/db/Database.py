@@ -43,10 +43,17 @@ class Database:
         Disconnects from the database using the connection string.
         :return: None
         '''
-        if self.cursor:
-            self.cursor.close()
-        if self.connection:
-            self.connection.close()
+        try:
+            if self.cursor:
+                self.cursor.close()
+        except:
+            pass
+        finally:
+            try:
+                if self.connection:
+                    self.connection.close()
+            except:
+                pass
 
     def execute(self, sql, *params):
         '''
@@ -120,3 +127,10 @@ class Database:
         '''
         if self.connection:
             self.connection.rollback()
+
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.disconnect()
