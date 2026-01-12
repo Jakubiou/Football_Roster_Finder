@@ -47,6 +47,12 @@ Před prvním spuštěním aplikace je nutné vytvořit databázi v Microsoft SQ
    ```
 5. Nyní v config.json dejte do DATABASE nazev vytvořené databáze pokud jste jen zkopírovali a spustili přikaz tak by to mělo být football
 
+## Vytvoření databázového loginu (pokud neexistuje)
+
+Tento krok není nutný, pokud:
+- se přihlašujete na školní server
+- nebo máte vytvořený aplikační databázový účet
+  
 ## Import testovacích dat
 
 ### Formát CSV (hráči):
